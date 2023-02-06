@@ -12,6 +12,7 @@ import android.util.Log
 import android.view.*
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Transformations.map
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.*
@@ -29,11 +30,14 @@ import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
 import org.koin.android.ext.android.inject
 
-class SelectLocationFragment : BaseFragment() {
+class SelectLocationFragment : BaseFragment(),OnMapReadyCallback {
 
     //Use Koin to get the view model of the SaveReminder
     override val _viewModel: SaveReminderViewModel by inject()
     private lateinit var binding: FragmentSelectLocationBinding
+
+    private lateinit var map: GoogleMap
+    private val REQUEST_LOCATION_PERMISSION = 1
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -47,6 +51,9 @@ class SelectLocationFragment : BaseFragment() {
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+        mapFragment.getMapAsync(this)
+
 //        TODO: add the map setup implementation
 //        TODO: zoom to the user location after taking his permission
 //        TODO: add style to the map
@@ -57,6 +64,20 @@ class SelectLocationFragment : BaseFragment() {
         onLocationSelected()
 
         return binding.root
+    }
+
+    override fun onMapReady(googleMap: GoogleMap) {
+
+        map = googleMap
+
+        val lat = 30.017492996141605
+        val lng = 31.434348529679674
+        val zoomLevel = 16.5f
+
+        val hospital = LatLng(lat, lng)
+        map.addMarker(MarkerOptions().position(hospital).title("Marker in New Cairo"))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(hospital, zoomLevel))
+
     }
 
     private fun onLocationSelected() {
@@ -86,6 +107,5 @@ class SelectLocationFragment : BaseFragment() {
         }
         else -> super.onOptionsItemSelected(item)
     }
-
 
 }
