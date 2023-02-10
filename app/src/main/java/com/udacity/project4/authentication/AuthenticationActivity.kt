@@ -34,8 +34,6 @@ class AuthenticationActivity : AppCompatActivity() {
             startSignIn()
         }
 
-
-
         val view = binding.root
         setContentView(view)
     }
@@ -51,7 +49,6 @@ class AuthenticationActivity : AppCompatActivity() {
         val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
             val user = FirebaseAuth.getInstance().currentUser
-            Log.i("Authentication", "Successfully signed in user ${FirebaseAuth.getInstance().currentUser?.displayName}!")
             Toast.makeText(this, "Successfully signed in", Toast.LENGTH_SHORT).show()
             startReminderActivity()
 
@@ -59,7 +56,6 @@ class AuthenticationActivity : AppCompatActivity() {
             // Sign in failed. If response is null the user canceled the
             // sign-in flow using the back button. Otherwise check
             // response.getError().getErrorCode() and handle the error.
-            Log.i("Authentication", "Sign in unsuccessful ${response?.error?.errorCode}")
             Toast.makeText(this, "Sign in unsuccessful", Toast.LENGTH_SHORT).show()
         }
     }
