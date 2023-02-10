@@ -58,4 +58,9 @@ class SaveReminderFragment : BaseFragment() {
         //make sure to clear the view model after destroy, as it's a single view model.
         _viewModel.onClear()
     }
+
+    companion object {
+        internal const val ACTION_GEOFENCE_EVENT =
+            "SaveReminderFragment.reminder.action.ACTION_GEOFENCE_EVENT"
+    }
 }
