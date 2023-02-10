@@ -10,7 +10,6 @@ import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.AuthUI.IdpConfig.GoogleBuilder
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
-import com.google.firebase.auth.FirebaseAuth
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 import com.udacity.project4.locationreminders.RemindersActivity
 
@@ -46,9 +45,9 @@ class AuthenticationActivity : AppCompatActivity() {
     }
 
     private fun onSignInResult(result: FirebaseAuthUIAuthenticationResult) {
-        val response = result.idpResponse
+//        val response = result.idpResponse
         if (result.resultCode == RESULT_OK) {
-            val user = FirebaseAuth.getInstance().currentUser
+//            val user = FirebaseAuth.getInstance().currentUser
             Toast.makeText(this, "Successfully signed in", Toast.LENGTH_SHORT).show()
             startReminderActivity()
 
@@ -59,7 +58,6 @@ class AuthenticationActivity : AppCompatActivity() {
             Toast.makeText(this, "Sign in unsuccessful", Toast.LENGTH_SHORT).show()
         }
     }
-
 
     private fun startSignIn() {
 
