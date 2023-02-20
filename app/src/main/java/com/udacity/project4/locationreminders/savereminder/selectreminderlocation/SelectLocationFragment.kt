@@ -17,6 +17,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
+import com.udacity.project4.base.NavigationCommand
 import com.udacity.project4.databinding.FragmentSelectLocationBinding
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.utils.setDisplayHomeAsUpEnabled
@@ -32,7 +33,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     private lateinit var map: GoogleMap
     private val REQUEST_LOCATION_PERMISSION = 1
 
-    private lateinit var fusedLocationProviderClient : FusedLocationProviderClient
+    private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
+    private var marker: Marker? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -43,7 +46,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         binding.viewModel = _viewModel
         binding.lifecycleOwner = this
 
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext())
+        fusedLocationProviderClient =
+            LocationServices.getFusedLocationProviderClient(requireContext())
 
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
@@ -51,14 +55,13 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-//        TODO: add the map setup implementation
-//        TODO: zoom to the user location after taking his permission
-//        TODO: add style to the map
 //        TODO: put a marker to location that the user selected
 
 //        TODO: call this function after the user confirms on the selected location
 
-        onLocationSelected()
+        binding.selectButton.setOnClickListener {
+                onLocationSelected()
+        }
 
         return binding.root
     }
@@ -79,18 +82,26 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         //        TODO: When the user confirms on the selected location,
         //         send back the selected location details to the view model
         //         and navigate back to the previous fragment to save the reminder and add the geofence
+
+            _viewModel.latitude.value = marker?.position?.latitude
+            _viewModel.longitude.value = marker?.position?.longitude
+            _viewModel.reminderSelectedLocationStr.value = marker?.title
+            _viewModel.navigationCommand.value = NavigationCommand.Back
     }
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
             map.clear()
-            map.addMarker(
+           marker = map.addMarker(
                 MarkerOptions().position(poi.latLng).title(poi.name).icon(
                     BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_AZURE
                     )
                 )
-            ).showInfoWindow()
+            )
+            marker?.showInfoWindow()
+
+            binding.selectButton.visibility = View.VISIBLE
         }
     }
 
@@ -102,10 +113,14 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             val snippet = String.format(
                 Locale.getDefault(), "Lat: %1$.5f, Long: %2$.5f", latLng.latitude, latLng.longitude
             )
-            map.addMarker(
+            marker = map.addMarker(
                 MarkerOptions().position(latLng).title(getString(R.string.dropped_pin))
                     .snippet(snippet)
-            ).showInfoWindow()
+            )
+
+            marker?.showInfoWindow()
+
+            binding.selectButton.visibility = View.VISIBLE
         }
     }
 
@@ -153,7 +168,11 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     @SuppressLint("MissingPermission")
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             getUserLocation()
