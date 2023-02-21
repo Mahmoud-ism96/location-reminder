@@ -35,7 +35,6 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     }
 
     override fun onHandleWork(intent: Intent) {
-        //TODO Needs To be Tested !!!
         if (intent.action == SaveReminderFragment.ACTION_GEOFENCE_EVENT) {
             val geofencingEvent = GeofencingEvent.fromIntent(intent)
 
@@ -52,7 +51,6 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     }
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-        //TODO Needs To be Tested !!!
         for (geoFence in triggeringGeofences) {
             val requestId = geoFence.requestId
 
