@@ -56,7 +56,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         mapFragment.getMapAsync(this)
 
         binding.selectButton.setOnClickListener {
-                onLocationSelected()
+            onLocationSelected()
         }
 
         return binding.root
@@ -75,16 +75,16 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun onLocationSelected() {
-            _viewModel.latitude.value = marker?.position?.latitude
-            _viewModel.longitude.value = marker?.position?.longitude
-            _viewModel.reminderSelectedLocationStr.value = marker?.title
-            _viewModel.navigationCommand.value = NavigationCommand.Back
+        _viewModel.latitude.value = marker?.position?.latitude
+        _viewModel.longitude.value = marker?.position?.longitude
+        _viewModel.reminderSelectedLocationStr.value = marker?.title
+        _viewModel.navigationCommand.value = NavigationCommand.Back
     }
 
     private fun setPoiClick(map: GoogleMap) {
         map.setOnPoiClickListener { poi ->
             map.clear()
-           marker = map.addMarker(
+            marker = map.addMarker(
                 MarkerOptions().position(poi.latLng).title(poi.name).icon(
                     BitmapDescriptorFactory.defaultMarker(
                         BitmapDescriptorFactory.HUE_AZURE
