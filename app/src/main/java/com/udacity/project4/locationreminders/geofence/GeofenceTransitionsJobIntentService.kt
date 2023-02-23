@@ -27,9 +27,7 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
 
         fun enqueueWork(context: Context, intent: Intent) {
             enqueueWork(
-                context,
-                GeofenceTransitionsJobIntentService::class.java, JOB_ID,
-                intent
+                context, GeofenceTransitionsJobIntentService::class.java, JOB_ID, intent
             )
         }
     }
@@ -51,12 +49,12 @@ class GeofenceTransitionsJobIntentService : JobIntentService(), CoroutineScope {
     }
 
     private fun sendNotification(triggeringGeofences: List<Geofence>) {
-        for (geoFence in triggeringGeofences) {
-            val requestId = geoFence.requestId
+        for (geofence in triggeringGeofences) {
+            val requestId = geofence.requestId
 
             //Get the local repository instance
             val remindersLocalRepository: ReminderDataSource by inject()
-//        Interaction to the repository has to be through a coroutine scope
+            //Interaction to the repository has to be through a coroutine scope
             CoroutineScope(coroutineContext).launch(SupervisorJob()) {
                 //get the reminder with the request id
                 val result = remindersLocalRepository.getReminder(requestId)

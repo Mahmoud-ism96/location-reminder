@@ -72,9 +72,10 @@ class SaveReminderFragment : BaseFragment() {
                 reminderDataItem =
                     ReminderDataItem(title, description, location, latitude, longitude)
 
-                if (_viewModel.validateAndSaveReminder(reminderDataItem)) addGeofence(
-                    reminderDataItem
-                )
+                if (_viewModel.validateAndSaveReminder(reminderDataItem)) {
+                    addGeofence(reminderDataItem)
+                }
+
             }
         }
     }
@@ -99,12 +100,12 @@ class SaveReminderFragment : BaseFragment() {
 
         geofencingClient = LocationServices.getGeofencingClient(requireContext())
 
-        geofencingClient.addGeofences(geofencingRequest, pendingIntent)?.run {
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent).run {
             addOnSuccessListener {
                 Log.e("Add Geofence", geofence.requestId)
             }
             addOnFailureListener {
-                Log.w("Add Geofence", "" + it.message)
+                Log.w("Add Geofence", "Geofence Failed: " + it.message)
             }
         }
     }
@@ -129,11 +130,15 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
+    ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
         } else {
-            val snack = Snackbar.make(requireView(),"Please enable your location to continue",Snackbar.LENGTH_LONG)
+            val snack = Snackbar.make(
+                requireView(), "Please enable your location all the time, so we can update/track your location", Snackbar.LENGTH_LONG
+            )
             snack.setAction("Settings", View.OnClickListener {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri: Uri = Uri.fromParts("package", activity?.packageName, null)
