@@ -10,6 +10,7 @@ import com.firebase.ui.auth.AuthUI.IdpConfig.EmailBuilder
 import com.firebase.ui.auth.AuthUI.IdpConfig.GoogleBuilder
 import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult
+import com.udacity.project4.R
 import com.udacity.project4.databinding.ActivityAuthenticationBinding
 import com.udacity.project4.locationreminders.RemindersActivity
 
@@ -66,7 +67,7 @@ class AuthenticationActivity : AppCompatActivity() {
                 GoogleBuilder().build(),
                 EmailBuilder().build()
             )
-        ).build()
+        ).setTheme(R.style.AppTheme).build()
 
         signInLauncher.launch(signInIntent)
     }
