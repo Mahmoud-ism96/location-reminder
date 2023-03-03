@@ -100,6 +100,22 @@ class RemindersLocalRepositoryTest {
         assertThat(remindersList.data, `is`(emptyList()))
     }
 
+    @Test
+    fun deleteReminder() = runBlocking {
+        val reminder =
+            ReminderDTO("Yoga", "Yoga Session", "Flexana", 30.011642516567647, 31.4382229282943)
+
+        localDataSource.saveReminder(reminder)
+
+        localDataSource.deleteReminder(reminder.id)
+
+        val remindersList = localDataSource.getReminders()
+
+        assertThat(remindersList is Result.Success, `is`(true))
+        remindersList as Result.Success
+
+        assertThat(remindersList.data, `is`(emptyList()))
+    }
 
 
 }
