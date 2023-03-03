@@ -5,10 +5,13 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.udacity.project4.locationreminders.MainCoroutineRule
 import com.udacity.project4.locationreminders.data.FakeDataSource
+import com.udacity.project4.locationreminders.data.dto.ReminderDTO
 import com.udacity.project4.locationreminders.getOrAwaitValue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runBlockingTest
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers
+import org.hamcrest.Matchers.`is`
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +38,7 @@ class RemindersListViewModelTest {
 
 
     @Before
-    fun setup() {
+    fun setupReminderListViewModel() {
         stopKoin()
 
         fakeDataSource = FakeDataSource()
@@ -47,7 +50,7 @@ class RemindersListViewModelTest {
     }
 
     @Test
-    fun loadReminders_showLoading() {
+    fun loadTasks_Loading() {
         mainCoroutineRule.pauseDispatcher()
         reminderViewModel.loadReminders()
 
@@ -59,7 +62,27 @@ class RemindersListViewModelTest {
 
     }
 
+    @Test
+    fun addNewReminder_setsNewReminderEvent() = mainCoroutineRule.runBlockingTest {
+        val reminder = ReminderDTO("Shopping", "Buy new Jeans", "Waterway", 30.043001792549084, 31.47547344399169)
+
+        // When adding a new task
+        fakeDataSource.saveReminder(reminder)
+
+        // Then the new task event is triggered
+        val value = reminderViewModel.loadReminders()
+
+        assertThat(value, Matchers.not(Matchers.nullValue()))
+
+    }
+
+    @Test
+    fun reminderList_SnackbarUpdated() {
+        fakeDataSource.setReturnError(true)
+
+        reminderViewModel.loadReminders()
 
 
-
+        assertThat(reminderViewModel.showSnackBar.getOrAwaitValue(), `is` ("Error getting reminders"))
+    }
 }

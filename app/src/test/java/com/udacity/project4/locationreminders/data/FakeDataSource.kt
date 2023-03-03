@@ -9,6 +9,11 @@ class FakeDataSource(var reminderDTO: MutableList<ReminderDTO>? = mutableListOf(
 
     private var shouldReturnError = false
 
+    fun setReturnError(value: Boolean) {
+        shouldReturnError = value
+    }
+
+
     override suspend fun getReminders(): Result<List<ReminderDTO>> {
         if (shouldReturnError) {
             return Result.Error(
