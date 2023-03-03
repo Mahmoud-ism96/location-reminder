@@ -115,6 +115,8 @@ class SaveReminderFragment : BaseFragment() {
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             binding.saveReminder.isEnabled = true
@@ -123,7 +125,8 @@ class SaveReminderFragment : BaseFragment() {
             this.requestPermissions(
                 arrayOf<String>(
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
             )
             false
@@ -137,7 +140,9 @@ class SaveReminderFragment : BaseFragment() {
         if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
         } else {
             val snack = Snackbar.make(
-                requireView(), "Please enable your location all the time, so we can update/track your location", Snackbar.LENGTH_LONG
+                requireView(),
+                "Please enable your location all the time, so we can update/track your location",
+                Snackbar.LENGTH_LONG
             )
             snack.setAction("Settings", View.OnClickListener {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
