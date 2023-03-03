@@ -173,7 +173,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     }
 
     private fun setMapStyle(map: GoogleMap) {
-        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(context, R.raw.map_style))
+        map.setMapStyle(MapStyleOptions.loadRawResourceStyle(requireContext(), R.raw.map_style))
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
