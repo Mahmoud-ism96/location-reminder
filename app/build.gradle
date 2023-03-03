@@ -127,13 +127,13 @@ dependencies {
     androidTestImplementation "com.linkedin.dexmaker:dexmaker-mockito:$dexMakerVersion"
     androidTestImplementation('org.koin:koin-test:2.0.1') { exclude group: 'org.mockito' }
 
-
+    //Firebase Auth
+    implementation "com.firebaseui:firebase-ui-auth:$firebaseAuth"
+    implementation "com.google.firebase:firebase-auth:11.0.2"
 
     //Maps & Geofencing
     implementation "com.google.android.gms:play-services-location:$playServicesVersion"
     implementation "com.google.android.gms:play-services-maps:$playServicesVersionMaps"
 
-    //Firebase Auth
-    implementation 'com.firebaseui:firebase-ui-auth:8.0.2'
 
 }
