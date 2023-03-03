@@ -2,9 +2,13 @@ package com.udacity.project4.locationreminders.savereminder
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.app.PendingIntent
+import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
@@ -57,8 +61,7 @@ class SaveReminderFragment : BaseFragment() {
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
             //            Navigate to another fragment to get the user location
-            _viewModel.navigationCommand.value =
-                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+            checkLocation()
         }
 
         binding.saveReminder.setOnClickListener {
@@ -77,6 +80,41 @@ class SaveReminderFragment : BaseFragment() {
                 }
 
             }
+        }
+    }
+
+    private fun checkLocation(){
+        val lm = context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        var gps_enabled = false
+        var network_enabled = false
+
+        try {
+            gps_enabled = lm.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        } catch (ex: Exception) {
+        }
+
+        try {
+            network_enabled = lm.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } catch (ex: Exception) {
+        }
+
+        if (!gps_enabled && !network_enabled) {
+            // notify user
+            AlertDialog.Builder(context)
+                .setMessage("Please enable your location to continue")
+                .setPositiveButton("Go To Settings",
+                    DialogInterface.OnClickListener { paramDialogInterface, paramInt ->
+                        context!!.startActivity(
+                            Intent(
+                                Settings.ACTION_LOCATION_SOURCE_SETTINGS
+                            )
+                        )
+                    })
+                .setNegativeButton("Cancel", null)
+                .show()
+        }else{
+            _viewModel.navigationCommand.value =
+                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
         }
     }
 

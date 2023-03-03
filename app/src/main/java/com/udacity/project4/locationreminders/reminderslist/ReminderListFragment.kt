@@ -1,5 +1,6 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
@@ -79,6 +80,12 @@ class ReminderListFragment : BaseFragment() {
                         val intent = Intent(activity, AuthenticationActivity::class.java)
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK)
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+                        val sharedPreference =  activity?.getSharedPreferences("User",Context.MODE_PRIVATE)
+                        var editor = sharedPreference?.edit()
+                        editor?.putInt("status", 0)
+                        editor?.commit()
+
                         startActivity(intent)
                     }
             }

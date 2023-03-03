@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
 import android.view.*
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.google.android.gms.location.*
@@ -15,6 +16,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.*
+import com.google.android.gms.tasks.CancellationToken
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.gms.tasks.OnTokenCanceledListener
 import com.udacity.project4.R
 import com.udacity.project4.base.BaseFragment
 import com.udacity.project4.base.NavigationCommand
@@ -118,15 +122,10 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
 
     private fun enableMyLocation(): Boolean {
         return if (ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) ==
-            PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(
-                requireContext(),
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) ==
-            PackageManager.PERMISSION_GRANTED
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
         ) {
             getUserLocation()
             map.isMyLocationEnabled = true
@@ -136,34 +135,58 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 arrayOf<String>(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
-                REQUEST_LOCATION_PERMISSION
+                ), REQUEST_LOCATION_PERMISSION
             )
+            Toast.makeText(requireContext(), "Failed To Get Current Location", Toast.LENGTH_SHORT)
+                .show()
             false
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
-        fusedLocationProviderClient.lastLocation
-            .addOnSuccessListener { location: Location ->
+        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
+            if (location != null) {
                 location.let {
                     val userLocation = LatLng(location.latitude, location.longitude)
                     map.animateCamera(
                         CameraUpdateFactory.newLatLngZoom(
-                            userLocation,
-                            16.5f
+                            userLocation, 16.5f
                         )
                     )
                 }
+            } else {
+                getCurrentUserLocation()
             }
+        }
+    }
+
+    private fun getCurrentUserLocation() {
+        fusedLocationProviderClient.getCurrentLocation(
+            LocationRequest.PRIORITY_HIGH_ACCURACY,
+            object : CancellationToken() {
+                override fun onCanceledRequested(p0: OnTokenCanceledListener) =
+                    CancellationTokenSource().token
+
+                override fun isCancellationRequested() = false
+            }).addOnSuccessListener { location: Location? ->
+            if (location == null) Toast.makeText(
+                requireContext(), "Cannot get location.", Toast.LENGTH_SHORT
+            ).show()
+            else {
+                val userLocation = LatLng(location.latitude, location.longitude)
+                map.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        userLocation, 16.5f
+                    )
+                )
+            }
+        }
     }
 
     @SuppressLint("MissingPermission")
     override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
+        requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
