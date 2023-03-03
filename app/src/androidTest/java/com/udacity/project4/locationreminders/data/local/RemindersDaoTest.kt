@@ -75,7 +75,7 @@ class RemindersDaoTest {
     }
 
     @Test
-    fun saveReminders() = runBlockingTest {
+    fun deleteAllReminders() = runBlockingTest {
         val reminder =
             ReminderDTO("Yoga", "Yoga Session", "Flexana", 30.011642516567647, 31.4382229282943)
 
