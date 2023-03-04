@@ -9,10 +9,6 @@ import android.os.Handler
 import android.view.*
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
-import com.google.android.gms.location.LocationListener
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
 import com.udacity.project4.R
 import com.udacity.project4.authentication.AuthenticationActivity
 import com.udacity.project4.base.BaseFragment
@@ -29,8 +25,6 @@ class ReminderListFragment : BaseFragment(), android.location.LocationListener {
     override val _viewModel: RemindersListViewModel by viewModel()
     private lateinit var binding: FragmentRemindersBinding
     private lateinit var locationManager: LocationManager
-    private lateinit var listener: LocationListener
-    private var boolean: Boolean = false
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,28 +42,8 @@ class ReminderListFragment : BaseFragment(), android.location.LocationListener {
 
         binding.refreshLayout.setOnRefreshListener { _viewModel.loadReminders() }
 
-//        if(isThereLocationCondition){
-//            locationManager =
-//                requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-//            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 500F, this)
-//
-//        }else{
-
         locationManager =
             requireContext().getSystemService(Context.LOCATION_SERVICE) as LocationManager
-
-        val locationRequest = LocationRequest.create().apply {
-            priority = LocationRequest.PRIORITY_LOW_POWER
-        }
-        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
-
-        val settingsClient = LocationServices.getSettingsClient(requireContext())
-        val locationSettingsResponseTask =
-            settingsClient.checkLocationSettings(builder.build())
-        locationSettingsResponseTask.addOnCompleteListener {
-            if (it.isSuccessful) {
-            }
-        }
 
         gpsChecker()
 
