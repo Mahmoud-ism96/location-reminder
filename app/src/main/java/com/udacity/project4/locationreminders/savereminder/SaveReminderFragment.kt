@@ -83,7 +83,7 @@ class SaveReminderFragment : BaseFragment() {
         }
     }
 
-    private fun checkLocation(){
+    private fun checkLocation() {
         val lm = context!!.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         var gps_enabled = false
         var network_enabled = false
@@ -112,7 +112,7 @@ class SaveReminderFragment : BaseFragment() {
                     })
                 .setNegativeButton("Cancel", null)
                 .show()
-        }else{
+        } else {
             _viewModel.navigationCommand.value =
                 NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
         }
@@ -126,7 +126,8 @@ class SaveReminderFragment : BaseFragment() {
             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER).build()
 
         val geofencingRequest =
-            GeofencingRequest.Builder().setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+            GeofencingRequest.Builder()
+                .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER and GeofencingRequest.INITIAL_TRIGGER_DWELL)
                 .addGeofence(geofence).build()
 
         val intent = Intent(requireContext(), GeofenceBroadcastReceiver::class.java)

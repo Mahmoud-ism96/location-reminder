@@ -53,6 +53,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         fusedLocationProviderClient =
             LocationServices.getFusedLocationProviderClient(requireContext())
 
+        getCurrentUserLocation()
+
         setHasOptionsMenu(true)
         setDisplayHomeAsUpEnabled(true)
 
@@ -125,6 +127,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
                 requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             getUserLocation()
@@ -134,36 +138,47 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
             this.requestPermissions(
                 arrayOf<String>(
                     Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
             )
-            Toast.makeText(requireContext(), "Failed To Get Current Location", Toast.LENGTH_SHORT)
-                .show()
+            Toast.makeText(
+                requireContext(),
+                "Failed To Get Current Location, please give permission to track your location",
+                Toast.LENGTH_SHORT
+            ).show()
             false
         }
     }
 
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
-        fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
-            if (location != null) {
-                location.let {
-                    val userLocation = LatLng(location.latitude, location.longitude)
-                    map.animateCamera(
-                        CameraUpdateFactory.newLatLngZoom(
-                            userLocation, 16.5f
+        try {
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
+                if (location != null) {
+                    location.let {
+                        val userLocation = LatLng(location.latitude, location.longitude)
+                        map.animateCamera(
+                            CameraUpdateFactory.newLatLngZoom(
+                                userLocation, 16.5f
+                            )
                         )
-                    )
+                    }
+                } else {
+                    getCurrentUserLocation()
                 }
-            } else {
-                getCurrentUserLocation()
             }
+        }catch (err : Exception){
+            Toast.makeText(
+                requireContext(),
+                "Please turn your location back on",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
     private fun getCurrentUserLocation() {
-        fusedLocationProviderClient.getCurrentLocation(
-            LocationRequest.PRIORITY_HIGH_ACCURACY,
+        fusedLocationProviderClient.getCurrentLocation(LocationRequest.PRIORITY_HIGH_ACCURACY,
             object : CancellationToken() {
                 override fun onCanceledRequested(p0: OnTokenCanceledListener) =
                     CancellationTokenSource().token
@@ -192,6 +207,12 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
             getUserLocation()
             map.isMyLocationEnabled = true
+        } else {
+            Toast.makeText(
+                requireContext(),
+                "Failed To Get Current Location, please give permission to track your location",
+                Toast.LENGTH_SHORT
+            ).show()
         }
     }
 
