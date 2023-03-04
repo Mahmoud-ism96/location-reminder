@@ -60,8 +60,10 @@ class SaveReminderFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
-            //            Navigate to another fragment to get the user location
-            checkLocation()
+            if (getForegroundLocation()) {
+                _viewModel.navigationCommand.value =
+                    NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+            }
         }
 
         binding.saveReminder.setOnClickListener {
@@ -75,10 +77,7 @@ class SaveReminderFragment : BaseFragment() {
                 reminderDataItem =
                     ReminderDataItem(title, description, location, latitude, longitude)
 
-                if (_viewModel.validateAndSaveReminder(reminderDataItem)) {
-                    addGeofence(reminderDataItem)
-                }
-
+                checkLocation()
             }
         }
     }
@@ -113,8 +112,9 @@ class SaveReminderFragment : BaseFragment() {
                 .setNegativeButton("Cancel", null)
                 .show()
         } else {
-            _viewModel.navigationCommand.value =
-                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+            if (_viewModel.validateAndSaveReminder(reminderDataItem)) {
+                addGeofence(reminderDataItem)
+            }
         }
     }
 
@@ -134,7 +134,7 @@ class SaveReminderFragment : BaseFragment() {
         intent.action = ACTION_GEOFENCE_EVENT
 
         val pendingIntent = PendingIntent.getBroadcast(
-            requireContext(), 0, intent, PendingIntent.FLAG_UPDATE_CURRENT
+            requireContext(), 0, intent, PendingIntent.FLAG_MUTABLE
         )
 
         geofencingClient = LocationServices.getGeofencingClient(requireContext())
@@ -169,11 +169,25 @@ class SaveReminderFragment : BaseFragment() {
                 ), REQUEST_LOCATION_PERMISSION
 
             )
-//            val permissions = arrayOf(
-//                Manifest.permission.ACCESS_FINE_LOCATION,
-//                Manifest.permission.ACCESS_BACKGROUND_LOCATION
-//            )
-//            ActivityCompat.requestPermissions(requireActivity(), permissions, PERMISSIONS_REQUEST_CODE)
+            false
+        }
+    }
+
+    private fun getForegroundLocation(): Boolean {
+        return if (ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED || ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            true
+        } else {
+            this.requestPermissions(
+                arrayOf<String>(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                ), REQUEST_LOCATION_PERMISSION
+            )
             false
         }
     }
@@ -182,21 +196,30 @@ class SaveReminderFragment : BaseFragment() {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED) && (grantResults[1] == PackageManager.PERMISSION_GRANTED) && (grantResults[2] == PackageManager.PERMISSION_GRANTED)) {
+        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED) && (grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+           if(grantResults.size==3 ){
+               if(grantResults[2] != PackageManager.PERMISSION_GRANTED){
+                   snackbarError()
+               }
+           }
         } else {
-            val snack = Snackbar.make(
-                requireView(),
-                "Please allow the app to access your location all the times",
-                Snackbar.LENGTH_LONG
-            )
-            snack.setAction("Settings") {
-                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                val uri: Uri = Uri.fromParts("package", activity?.packageName, null)
-                intent.data = uri
-                startActivity(intent)
-            }
-            snack.show()
+            snackbarError()
         }
+    }
+
+    private fun snackbarError(){
+        val snack = Snackbar.make(
+            requireView(),
+            "Please allow the app to access your location all the times",
+            Snackbar.LENGTH_LONG
+        )
+        snack.setAction("Settings") {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+            val uri: Uri = Uri.fromParts("package", activity?.packageName, null)
+            intent.data = uri
+            startActivity(intent)
+        }
+        snack.show()
     }
 
 

@@ -6,6 +6,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Bundle
+import android.os.Handler
 import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
@@ -131,7 +132,9 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            getUserLocation()
+            Handler().postDelayed({
+                getUserLocation()
+            }, 3000)
             map.isMyLocationEnabled = true
             true
         } else {
@@ -148,7 +151,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     private fun getUserLocation() {
         try {
-            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location ->
+            fusedLocationProviderClient.lastLocation.addOnSuccessListener { location: Location? ->
                 if (location != null) {
                     location.let {
                         val userLocation = LatLng(location.latitude, location.longitude)
@@ -162,7 +165,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                     getCurrentUserLocation()
                 }
             }
-        }catch (err : Exception){
+        } catch (err: Exception) {
             Toast.makeText(
                 requireContext(),
                 "Please turn your location back on",
