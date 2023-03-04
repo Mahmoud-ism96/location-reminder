@@ -167,7 +167,13 @@ class SaveReminderFragment : BaseFragment() {
                     Manifest.permission.ACCESS_COARSE_LOCATION,
                     Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
+
             )
+//            val permissions = arrayOf(
+//                Manifest.permission.ACCESS_FINE_LOCATION,
+//                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+//            )
+//            ActivityCompat.requestPermissions(requireActivity(), permissions, PERMISSIONS_REQUEST_CODE)
             false
         }
     }
@@ -176,22 +182,23 @@ class SaveReminderFragment : BaseFragment() {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED) && (grantResults[1] == PackageManager.PERMISSION_GRANTED) && (grantResults[2] == PackageManager.PERMISSION_GRANTED)) {
         } else {
             val snack = Snackbar.make(
                 requireView(),
-                "Please enable your location all the time, so we can update/track your location",
+                "Please allow the app to access your location all the times",
                 Snackbar.LENGTH_LONG
             )
-            snack.setAction("Settings", View.OnClickListener {
+            snack.setAction("Settings") {
                 val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                 val uri: Uri = Uri.fromParts("package", activity?.packageName, null)
                 intent.data = uri
                 startActivity(intent)
-            })
+            }
             snack.show()
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()

@@ -139,14 +139,8 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
                 arrayOf<String>(
                     Manifest.permission.ACCESS_FINE_LOCATION,
                     Manifest.permission.ACCESS_COARSE_LOCATION,
-                    Manifest.permission.ACCESS_BACKGROUND_LOCATION
                 ), REQUEST_LOCATION_PERMISSION
             )
-            Toast.makeText(
-                requireContext(),
-                "Failed To Get Current Location, please give permission to track your location",
-                Toast.LENGTH_SHORT
-            ).show()
             false
         }
     }

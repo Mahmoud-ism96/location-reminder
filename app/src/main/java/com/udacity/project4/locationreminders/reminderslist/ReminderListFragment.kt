@@ -1,12 +1,15 @@
 package com.udacity.project4.locationreminders.reminderslist
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
 import android.os.Handler
 import android.view.*
+import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import com.firebase.ui.auth.AuthUI
 import com.udacity.project4.R
@@ -54,26 +57,35 @@ class ReminderListFragment : BaseFragment(), android.location.LocationListener {
 
         println("Looping")
 
-        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+        if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) && enableMyLocation()) {
             println("isSuccessful")
-            locationManager.requestLocationUpdates(
+            if (enableMyLocation()) locationManager.requestLocationUpdates(
                 LocationManager.GPS_PROVIDER, 1000, 1f,
                 this
             )
-        } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+        } else if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) && enableMyLocation()) {
             println("isSuccessful")
             locationManager.requestLocationUpdates(
                 LocationManager.NETWORK_PROVIDER, 1000, 1f,
                 this
             )
-        }
-        else {
+        } else {
             Handler().postDelayed({
                 gpsChecker()
                 println("isFailure")
             }, 5000)
         }
 
+    }
+
+    private fun enableMyLocation(): Boolean {
+        return ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                requireContext(), Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     override fun onProviderDisabled(provider: String) {
