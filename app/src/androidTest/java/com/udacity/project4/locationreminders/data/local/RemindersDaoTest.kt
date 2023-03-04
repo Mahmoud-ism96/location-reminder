@@ -87,5 +87,19 @@ class RemindersDaoTest {
 
         assertThat(remindersList, `is`(emptyList()))
     }
-    
+
+    @Test
+    fun deleteReminder() = runBlockingTest {
+        val reminder =
+            ReminderDTO("Yoga", "Yoga Session", "Flexana", 30.011642516567647, 31.4382229282943)
+
+        database.reminderDao().saveReminder(reminder)
+
+        database.reminderDao().deleteReminder(reminder.id)
+
+        val remindersList = database.reminderDao().getReminders()
+
+        assertThat(remindersList, `is`(emptyList()))
+    }
+
 }
