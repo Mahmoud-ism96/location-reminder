@@ -60,10 +60,9 @@ class SaveReminderFragment : BaseFragment() {
         super.onViewCreated(view, savedInstanceState)
         binding.lifecycleOwner = this
         binding.selectLocation.setOnClickListener {
-            if (getForegroundLocation()) {
-                _viewModel.navigationCommand.value =
-                    NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
-            }
+            getForegroundLocation()
+            _viewModel.navigationCommand.value =
+                NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
         }
 
         binding.saveReminder.setOnClickListener {
@@ -196,18 +195,22 @@ class SaveReminderFragment : BaseFragment() {
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED) && (grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-           if(grantResults.size==3 ){
-               if(grantResults[2] != PackageManager.PERMISSION_GRANTED){
-                   snackbarError()
-               }
-           }
-        } else {
-            snackbarError()
+        if (grantResults.size == 2) {
+            if (grantResults.isNotEmpty() && (grantResults[0] == PackageManager.PERMISSION_GRANTED) && (grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
+//                _viewModel.navigationCommand.value =
+//                    NavigationCommand.To(SaveReminderFragmentDirections.actionSaveReminderFragmentToSelectLocationFragment())
+            } else {
+                snackbarError()
+            }
+        }
+        if (grantResults.size == 3) {
+            if (grantResults[2] != PackageManager.PERMISSION_GRANTED) {
+                snackbarError()
+            }
         }
     }
 
-    private fun snackbarError(){
+    private fun snackbarError() {
         val snack = Snackbar.make(
             requireView(),
             "Please allow the app to access your location all the times",
