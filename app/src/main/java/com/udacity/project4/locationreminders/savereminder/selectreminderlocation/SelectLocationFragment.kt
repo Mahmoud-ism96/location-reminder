@@ -134,7 +134,7 @@ class SelectLocationFragment : BaseFragment(), OnMapReadyCallback {
         ) {
             Handler().postDelayed({
                 getUserLocation()
-            }, 3000)
+            }, 1500)
             map.isMyLocationEnabled = true
             true
         } else {
